@@ -1,61 +1,48 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# EPS · API de gestión de citas médicas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST para una EPS: administra doctores, pacientes, especialidades, consultorios, horarios y **citas médicas**, con permisos por rol y **notificaciones push** a la app móvil.
 
-## About Laravel
+App móvil: [Eps_React](https://github.com/CristianGarcia7/Eps_React)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 👥 Roles
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Rol | Qué puede hacer |
+|---|---|
+| **Paciente** | Registrarse, ver doctores disponibles con sus horarios y consultorios, solicitar citas y ver su historial |
+| **Doctor** | Ver sus citas, aprobarlas, rechazarlas o completarlas, gestionar sus horarios y ver su consultorio |
+| **Admin** | CRUD de usuarios, roles, doctores, pacientes, especialidades y consultorios |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ✨ Funcionalidades
 
-## Learning Laravel
+- Autenticación con **JWT** (`tymon/jwt-auth`) y middleware propio que maneja varios *guards* y roles.
+- Flujo de citas con estados: *Por aprobar* → *Programada* o *Rechazada* → *Completada* o *Cancelada*.
+- **Notificaciones push con Expo** cuando una cita cambia de estado.
+- Correos para **solicitud de cita** y **restablecimiento de contraseña**.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🧱 Stack
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Laravel 12 · PHP 8.2 · JWT Auth · SQLite / MySQL · Expo Push API
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🚀 Cómo correrlo
 
-## Laravel Sponsors
+```bash
+composer install
+cp .env.example .env        # SQLite por defecto; configura el correo (MAIL_*)
+php artisan key:generate
+php artisan jwt:secret
+php artisan migrate
+php artisan serve
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 📡 Endpoints destacados
 
-### Premium Partners
+| Método | Ruta | Rol |
+|---|---|---|
+| `POST` | `/api/login` · `/api/register` · `/api/reset-password` | Público |
+| `POST` | `/api/solicitar-cita` | Paciente |
+| `GET` | `/api/doctores-disponibles` · `/api/horarios-disponibles/{doctor}` | Paciente |
+| `PUT` | `/api/doctor/aprobar-cita/{id}` · `/rechazar-cita/{id}` · `/completar-cita/{id}` | Doctor |
+| `GET` `POST` `PUT` `DELETE` | `/api/doctor/...Horario` | Doctor |
+| CRUD | `/api/doctores` · `/pacientes` · `/Especialidades` · `/users` · `/roles` | Admin |
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+La lista completa está en [`routes/api.php`](routes/api.php).
